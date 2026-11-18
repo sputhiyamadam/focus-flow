@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#4f46e5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="PhD Tracker" />
+  <meta name="apple-mobile-web-app-title" content="FocusFlow" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./icon.svg" />
-  <title>PhD Pomodoro & Command Center — Sreedevi P. Vasu</title>
+  <title>FocusFlow — Time-Blocked Pomodoro & Project Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
@@ -25,7 +25,7 @@
       background-color: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      padding-bottom: 80px;
+      padding-bottom: 84px;
     }
     .tab-active {
       border-bottom: 2px solid #6366f1;
@@ -38,619 +38,862 @@
     }
     .active-pomo-card {
       border-color: #6366f1 !important;
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35);
     }
   </style>
 </head>
 <body class="antialiased min-h-screen p-3 md:p-6">
   <div class="max-w-5xl mx-auto space-y-4">
 
-    <!-- HEADER & QUICK LINKS -->
+    <!-- HEADER BAR -->
     <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <div class="flex items-center gap-2">
-          <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-indigo-600 text-white">🍅 PhD Mobile Studio</span>
-          <span class="text-xs text-slate-400 font-mono">Nov 18 → Nov 30 Committee → Dec 21 CIRES</span>
+          <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-indigo-600 text-white">🍅 FocusFlow Studio</span>
+          <span class="text-xs text-slate-400">Open-Source Time-Blocked Pomodoro & Project Tracker</span>
         </div>
-        <h1 class="text-base md:text-lg font-bold mt-1 text-white">Sreedevi's Time-Blocked Pomodoro & Dissertation Tracker</h1>
+        <h1 class="text-base md:text-lg font-bold mt-1 text-white">Daily Time-Blocker & Deep Work Command Center</h1>
       </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <a href="https://docs.google.com/document/d/1BDccX-iP0NS7XxFgD0vCc1DF0MH3fU_3FH-7lRWDTpE/edit" target="_blank" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700 text-slate-100 hover:bg-slate-600">
-          JGRa Doc ↗
-        </a>
-        <a href="https://drive.google.com/drive/folders/1v-WsATjAkC8dkiTMiMt1hzvMvV7adFL8" target="_blank" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700 text-slate-100 hover:bg-slate-600">
-          Topo Folder ↗
-        </a>
-        <a href="https://docs.google.com/document/d/1_SY7dkbZ1vjuhTPOV5Rvii75X8ANyzRq2Pt9fHn_w60/edit" target="_blank" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700 text-slate-100 hover:bg-slate-600">
-          CIRES Doc ↗
-        </a>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="openSettingsModal()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-100 border border-slate-600">
+          ⚙️ Data & Templates
+        </button>
+        <div class="bg-slate-900/70 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2">
+          <span class="text-xs text-slate-400">Done:</span>
+          <span id="overall-progress-text" class="text-xs font-mono font-bold text-emerald-400">0 / 0</span>
+        </div>
       </div>
     </div>
 
-    <!-- POMODORO TIMER CARD -->
+    <!-- LIVE POMODORO TIMER STUDIO -->
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        
+
+        <!-- Left: Circular Timer + Mode Presets -->
         <div class="flex items-center gap-4">
-          <div class="relative flex items-center justify-center w-24 h-24 rounded-full border-4 border-indigo-500 bg-slate-900 shrink-0 shadow-inner">
+          <div id="timer-ring" class="relative flex items-center justify-center w-24 h-24 rounded-full border-4 border-indigo-500 bg-slate-900 shrink-0 shadow-inner">
             <div class="text-center">
               <div id="timer-display" class="text-2xl font-mono font-bold tabular-nums text-white">25:00</div>
-              <div id="timer-mode-label" class="text-[10px] uppercase tracking-wider text-indigo-400 font-bold">Focus</div>
+              <div id="timer-mode-label" class="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold">Focus</div>
             </div>
           </div>
 
-          <div class="space-y-2 flex-1">
+          <div class="space-y-2">
             <div class="flex flex-wrap items-center gap-1.5">
-              <button onclick="setTimerPreset(25, 'Focus (25m)')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-700">25m Focus</button>
-              <button onclick="setTimerPreset(5, 'Break (5m)')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-700">5m Break</button>
-              <button onclick="setTimerPreset(50, 'Deep (50m)')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-700">50m Deep</button>
-              <button onclick="setTimerPreset(10, 'Break (10m)')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-700">10m Break</button>
+              <button onclick="setTimerPreset(25, 'Focus (25m)')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-900 border border-slate-700 text-slate-200 hover:border-indigo-500">25m Focus</button>
+              <button onclick="setTimerPreset(5, 'Short Break (5m)')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-900 border border-slate-700 text-emerald-300 hover:border-emerald-500">5m Break</button>
+              <button onclick="setTimerPreset(50, 'Deep Work (50m)')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-900 border border-slate-700 text-amber-300 hover:border-amber-500">50m Deep</button>
+              <button onclick="setTimerPreset(10, 'Long Break (10m)')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-900 border border-slate-700 text-emerald-300 hover:border-emerald-500">10m Break</button>
+              <button onclick="setCustomTimer()" class="px-2 py-1 text-xs font-medium rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white">Custom</button>
             </div>
 
-            <div class="text-xs text-slate-300 line-clamp-2">
-              🎯 <span id="active-task-name" class="font-semibold text-indigo-300">Wed, Nov 18 (10:30 AM) — Verify Nov 30 Calendar Invite & Email Antonietta/Juliana</span>
+            <div class="text-xs text-slate-300">
+              Active Block: <span id="active-task-label" class="font-semibold text-indigo-300">Tap "▶ Start" on any task below</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-2 pt-0.5">
-              <button id="btn-start-pause" onclick="toggleTimer()" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-500 shadow">
-                ▶ Start
-              </button>
-              <button onclick="resetTimer()" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-700 text-slate-200 hover:bg-slate-600">
-                ↺ Reset
-              </button>
-              <button onclick="completePomodoroManual()" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-700">
-                +1 🍅
-              </button>
-              <button onclick="enableNotifications()" id="btn-notify" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-700">
-                🔔 Alerts
-              </button>
+              <button id="timer-start-btn" onclick="toggleTimer()" class="px-4 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow">▶ Start</button>
+              <button onclick="resetTimer()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200">↺ Reset</button>
+              <button onclick="testSoundAndNotifications()" id="notif-btn" class="px-2.5 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-slate-500">🔔 Enable Alerts</button>
+              <span id="pomo-session-counter" class="text-xs font-mono text-amber-400 ml-1">🍅 0 today</span>
             </div>
           </div>
         </div>
 
-        <div class="flex flex-row md:flex-col justify-between items-center md:items-end gap-2 border-t md:border-t-0 pt-3 md:pt-0 border-slate-700">
-          <div class="text-left md:text-right">
-            <div class="text-[11px] text-slate-400">Pomodoros Done</div>
-            <div id="pomo-count-display" class="text-sm font-mono font-bold text-indigo-400">🍅 0 (0.0 hrs)</div>
+        <!-- Right: Future Modules Preview Pill -->
+        <div class="bg-slate-900/80 border border-slate-700/80 rounded-xl p-3 text-xs space-y-1.5 md:max-w-xs">
+          <div class="font-semibold text-indigo-300 flex items-center justify-between">
+            <span>✨ Modular Architecture</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">v1.0 Core</span>
           </div>
-          <div class="flex items-center gap-3">
-            <div class="text-right">
-              <div id="overall-progress-text" class="text-xs font-mono font-bold text-emerald-400">0 / 0</div>
-              <div class="text-[10px] text-slate-400">Completed</div>
-            </div>
-            <div class="w-24 bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-700">
-              <div id="overall-progress-bar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 0%"></div>
-            </div>
-          </div>
+          <p class="text-slate-400 leading-relaxed">
+            Tap <strong>▶ Start</strong> on any task to run a focused countdown, or tap <strong>📅 Remind</strong> to push a native Google Calendar alarm to your phone.
+          </p>
         </div>
 
       </div>
     </div>
 
-    <!-- DESKTOP TABS -->
-    <div class="hidden sm:flex flex-wrap gap-2 border-b border-slate-700 text-xs">
-      <button onclick="switchTab('today')" id="tab-today" class="px-3 py-2 tab-active">⏰ Daily Time-Blocks</button>
-      <button onclick="switchTab('daily')" id="tab-daily" class="px-3 py-2 text-slate-400">📅 13-Day Sprint (Nov 18–30)</button>
-      <button onclick="switchTab('postdoc')" id="tab-postdoc" class="px-3 py-2 text-slate-400">🌊 PDO–MJO CIRES</button>
-      <button onclick="switchTab('topo')" id="tab-topo" class="px-3 py-2 text-slate-400">⛰️ Topography</button>
-      <button onclick="switchTab('jgra')" id="tab-jgra" class="px-3 py-2 text-slate-400">✅ JGRa SM</button>
-      <button onclick="switchTab('wrf')" id="tab-wrf" class="px-3 py-2 text-slate-400">☀️ WRF & Committee</button>
+    <!-- DESKTOP NAVIGATION TABS -->
+    <div class="hidden sm:flex border-b border-slate-700 gap-6 text-sm overflow-x-auto">
+      <button onclick="switchTab('today')" id="tab-today" class="pb-2.5 tab-active whitespace-nowrap">⏰ Daily Time-Blocker</button>
+      <button onclick="switchTab('projects')" id="tab-projects" class="pb-2.5 text-slate-400 hover:text-white whitespace-nowrap">📂 Projects & Checklists</button>
+      <button onclick="switchTab('upcoming')" id="tab-upcoming" class="pb-2.5 text-slate-400 hover:text-white whitespace-nowrap">📅 All Scheduled Days</button>
+      <button onclick="switchTab('roadmap')" id="tab-roadmap" class="pb-2.5 text-slate-400 hover:text-white whitespace-nowrap">🌸 Cycle Sync & Habit Stack (Coming Next)</button>
     </div>
 
-    <!-- TAB 0: TODAY'S HOUR-BY-HOUR TIME-BLOCKED POMODORO PLANNER -->
-    <div id="view-today" class="space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-800 border border-slate-700 rounded-2xl p-3">
-        <div class="text-xs text-slate-300">
-          <span class="font-bold text-white">☀️ Select Day:</span> Tap ▶ to start a 25m Pomodoro or 📅 to add a reminder to your phone's Google Calendar.
+    <!-- TAB 1: DAILY TIME-BLOCKER -->
+    <div id="view-today" class="space-y-4">
+
+      <!-- Date Selector & Add Task Form -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700/80 pb-3">
+          <div class="flex items-center gap-2">
+            <button onclick="shiftSelectedDate(-1)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs">◀ Prev</button>
+            <input type="date" id="selected-date-input" onchange="onDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs font-semibold text-white" />
+            <button onclick="shiftSelectedDate(1)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs">Next ▶</button>
+            <button onclick="goToToday()" class="px-2.5 py-1 rounded-lg bg-indigo-950/80 border border-indigo-700/60 text-indigo-300 text-xs hover:bg-indigo-900/60">Today</button>
+          </div>
+          <div id="selected-date-pretty" class="text-xs font-medium text-slate-300"></div>
         </div>
-        <select id="day-selector" onchange="selectDay(this.value)" class="px-3 py-2 rounded-xl text-xs bg-slate-900 border border-slate-700 text-white font-semibold">
-          <option value="Wed, Nov 18" data-date="20261118">Wed, Nov 18 (Today — Committee Invite + PDO Email + Topo Significance Test)</option>
-          <option value="Thu, Nov 19" data-date="20261119">Thu, Nov 19 (Topography Figs 1–3 Redraw + Capotondi 2022 Paper)</option>
-          <option value="Fri, Nov 20" data-date="20261120">Fri, Nov 20 (Topography Figs 4–7 Redraw + Dias 2021 Paper)</option>
-          <option value="Sat, Nov 21" data-date="20261121">Sat, Nov 21 (Assemble Condensed Topography Draft + PDO vs MJO Check)</option>
-          <option value="Sun, Nov 22" data-date="20261122">Sun, Nov 22 (Send Topography Paper to Co-Authors! + PDO Outline)</option>
-          <option value="Mon, Nov 23" data-date="20261123">Mon, Nov 23 (JGRa SM Quick Citation Fixes + SM Figs 1, 5e, 6e + OU Postdoc)</option>
-          <option value="Tue, Nov 24" data-date="20261124">Tue, Nov 24 (JGRa SM Scientific Additions + PDO–MJO Proposal Fig 1)</option>
-          <option value="Wed, Nov 25" data-date="20261125">Wed, Nov 25 (Send Completed JGRa SM Revision to Dr. Ray! + PDO Sec 1)</option>
-          <option value="Thu, Nov 26 (Thanksgiving)" data-date="20261126">Thu, Nov 26 (Thanksgiving Break — Rest & Recharge)</option>
-          <option value="Fri, Nov 27" data-date="20261127">Fri, Nov 27 (Assemble Clean WRF-SCM & Insolation Results Document)</option>
-          <option value="Sat, Nov 28" data-date="20261128">Sat, Nov 28 (Build 15-Slide Fall Committee Meeting Presentation)</option>
-          <option value="Sun, Nov 29" data-date="20261129">Sun, Nov 29 (Send WRF-SCM Doc to Dr. Ray + 20-Min Slide Practice Run)</option>
-          <option value="Mon, Nov 30" data-date="20261130">Mon, Nov 30 (🎯 FALL PHD COMMITTEE MEETING DAY!)</option>
-        </select>
+
+        <!-- Add New Time Block Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
+          <input id="new-task-time" type="text" placeholder="Time (e.g. 09:00 - 10:00 AM)" class="sm:col-span-3 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500" />
+          <input id="new-task-title" type="text" placeholder="What are you focusing on in this block?" class="sm:col-span-4 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500" />
+          <select id="new-task-project" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-white"></select>
+          <select id="new-task-pomos" class="sm:col-span-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white">
+            <option value="1">1 🍅</option>
+            <option value="2" selected>2 🍅</option>
+            <option value="3">3 🍅</option>
+            <option value="4">4 🍅</option>
+          </select>
+          <button onclick="addDailyTask()" class="sm:col-span-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg">+ Add Block</button>
+        </div>
       </div>
 
-      <!-- Custom Task Adder -->
-      <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-3 flex flex-col sm:flex-row gap-2">
-        <input id="custom-slot" type="text" placeholder="Time (e.g. 4:30 – 5:00 PM)" class="px-3 py-1.5 rounded-xl text-xs bg-slate-900 border border-slate-700 text-white sm:w-44" />
-        <input id="custom-title" type="text" placeholder="Add a custom task for this day..." class="px-3 py-1.5 rounded-xl text-xs bg-slate-900 border border-slate-700 text-white flex-1" />
-        <button onclick="addCustomTask()" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-500 shrink-0">+ Add Block</button>
+      <!-- Daily Time-Blocked List -->
+      <div id="daily-blocks-container" class="space-y-2.5"></div>
+    </div>
+
+    <!-- TAB 2: PROJECTS & CHECKLISTS -->
+    <div id="view-projects" class="hidden space-y-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
+        <h2 class="text-sm font-bold text-white">📂 Create or Manage Projects</h2>
+        <p class="text-xs text-slate-400">Group your tasks and checklists by project, paper, goal, or life area. Add optional external links (Google Docs, Overleaf, GitHub, Notion).</p>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <input id="new-proj-name" type="text" placeholder="Project Name (e.g. Paper Revision, Grant Proposal)" class="sm:col-span-4 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500" />
+          <input id="new-proj-link" type="url" placeholder="Optional Link (https://docs.google.com/...)" class="sm:col-span-4 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500" />
+          <select id="new-proj-color" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-white">
+            <option value="indigo">🟣 Indigo</option>
+            <option value="emerald">🟢 Emerald</option>
+            <option value="amber">🟠 Amber</option>
+            <option value="sky">🔵 Sky Blue</option>
+            <option value="rose">🌸 Rose</option>
+          </select>
+          <button onclick="addProject()" class="sm:col-span-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg">+ New Project</button>
+        </div>
       </div>
 
-      <div id="timeblocks-container" class="space-y-2.5"></div>
+      <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
-    <!-- TAB 1: ALL DAYS OVERVIEW -->
-    <div id="view-daily" class="hidden space-y-4">
-      <div class="flex flex-wrap gap-1.5 text-xs">
-        <button onclick="filterWeek('all')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">All Phases</button>
-        <button onclick="filterWeek('p1')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">Nov 18–22 (Topo + PDO)</button>
-        <button onclick="filterWeek('p2')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">Nov 23–25 (JGRa + PDO)</button>
-        <button onclick="filterWeek('p3')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">Nov 26–30 (WRF/Committee)</button>
-        <button onclick="filterWeek('p4')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">Dec 1–21 (CIRES)</button>
+    <!-- TAB 3: ALL SCHEDULED DAYS OVERVIEW -->
+    <div id="view-upcoming" class="hidden space-y-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-white">📅 Multi-Day Schedule Overview</h2>
+          <p class="text-xs text-slate-400">See all dates that have scheduled time blocks. Click any date to jump to its Daily Time-Blocker.</p>
+        </div>
       </div>
-      <div id="daily-container" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      <div id="all-days-container" class="space-y-4"></div>
     </div>
 
-    <!-- TAB 2: POSTDOC / PDO-MJO -->
-    <div id="view-postdoc" class="hidden space-y-4">
-      <div id="postdoc-container" class="space-y-2"></div>
-    </div>
+    <!-- TAB 4: UPCOMING MODULES (CYCLE SYNC & HABIT STACK) -->
+    <div id="view-roadmap" class="hidden space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-800 border border-rose-500/30 rounded-2xl p-5 space-y-2">
+          <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-rose-950 text-rose-300 border border-rose-800">Coming in Phase 2</span>
+          <h3 class="text-base font-bold text-white pt-1">🌸 Menstrual Cycle Phase Sync</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Automatically adapts your recommended daily Pomodoro load and task types around the 4 cycle phases:
+          </p>
+          <ul class="text-xs text-slate-400 space-y-1 list-disc pl-4">
+            <li><strong>Menstrual (Days 1–5):</strong> Low-cortisol rest, reflection, outlining, & gentle reading blocks.</li>
+            <li><strong>Follicular (Days 6–13):</strong> High creativity, brainstorming, coding, & starting new experiments/drafts.</li>
+            <li><strong>Ovulatory (Days 14–17):</strong> Peak communication—ideal for committee presentations, outreach emails, & collaboration.</li>
+            <li><strong>Luteal (Days 18–28):</strong> Deep detail-oriented focus—finishing revisions, proofreading, figures, & closing checklists.</li>
+          </ul>
+        </div>
 
-    <!-- TAB 3: TOPOGRAPHY -->
-    <div id="view-topo" class="hidden space-y-4">
-      <div id="topo-container" class="space-y-2"></div>
-    </div>
-
-    <!-- TAB 4: JGRa -->
-    <div id="view-jgra" class="hidden space-y-4">
-      <div id="jgra-container" class="space-y-2"></div>
-    </div>
-
-    <!-- TAB 5: WRF & COMMITTEE -->
-    <div id="view-wrf" class="hidden space-y-4">
-      <div id="wrf-container" class="space-y-2"></div>
+        <div class="bg-slate-800 border border-indigo-500/30 rounded-2xl p-5 space-y-2">
+          <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800">Coming in Phase 2</span>
+          <h3 class="text-base font-bold text-white pt-1">⚡ Workflow Habit Stack & Deep Flow State</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Build repeatable pre-focus rituals and habit chains that trigger effortless entry into deep flow:
+          </p>
+          <ul class="text-xs text-slate-400 space-y-1 list-disc pl-4">
+            <li><strong>Morning Launch Stack:</strong> Hydration → 2-min priority review → Phone in another room → First 25m Pomodoro.</li>
+            <li><strong>Deep Flow Mode:</strong> Progressive timer (25m warmup → 50m deep flow → 90m ultradian rhythm) with ambient brown noise/binaural toggle.</li>
+            <li><strong>Shutdown Ritual:</strong> Log completed Pomodoros & set tomorrow's #1 block so your mind disconnects guilt-free at night.</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
   </div>
 
+  <!-- SETTINGS / TEMPLATES / IMPORT-EXPORT MODAL -->
+  <div id="settings-modal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <h3 class="text-sm font-bold text-white">⚙️ Workspace Templates & Data Backup</h3>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-700 space-y-2">
+          <div class="font-semibold text-white">1. Quick Starter Templates</div>
+          <p class="text-slate-400">Load a general sample workspace or start with a completely clean slate.</p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button onclick="loadSampleTemplate()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">✨ Load Sample Deep-Work Template</button>
+            <button onclick="clearAllData()" class="px-3 py-1.5 rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 font-semibold">🗑️ Reset to Blank Slate</button>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-700 space-y-2">
+          <div class="font-semibold text-white">2. Backup or Sync Across Laptop & Phone (JSON)</div>
+          <p class="text-slate-400">Your data stays 100% private in your browser's local storage. Export a JSON file anytime to back up or import onto your phone.</p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button onclick="exportWorkspaceJSON()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">⬇️ Export Workspace (.json)</button>
+            <label class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold cursor-pointer">
+              ⬆️ Import Workspace (.json)
+              <input type="file" accept=".json" onchange="importWorkspaceJSON(event)" class="hidden" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MOBILE BOTTOM NAVIGATION BAR -->
-  <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around items-center py-2 px-1 z-50 text-[10px]">
-    <button onclick="switchTab('today')" class="flex flex-col items-center gap-0.5 text-indigo-400 font-semibold">
+  <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 px-2 py-2 flex justify-around items-center z-40">
+    <button onclick="switchTab('today')" id="mob-today" class="flex flex-col items-center text-[11px] text-indigo-400 font-semibold">
       <span class="text-base">⏰</span><span>Today</span>
     </button>
-    <button onclick="switchTab('daily')" class="flex flex-col items-center gap-0.5 text-slate-400">
-      <span class="text-base">📅</span><span>13-Day</span>
+    <button onclick="switchTab('projects')" id="mob-projects" class="flex flex-col items-center text-[11px] text-slate-400">
+      <span class="text-base">📂</span><span>Projects</span>
     </button>
-    <button onclick="switchTab('postdoc')" class="flex flex-col items-center gap-0.5 text-slate-400">
-      <span class="text-base">🌊</span><span>CIRES</span>
+    <button onclick="switchTab('upcoming')" id="mob-upcoming" class="flex flex-col items-center text-[11px] text-slate-400">
+      <span class="text-base">📅</span><span>Schedule</span>
     </button>
-    <button onclick="switchTab('topo')" class="flex flex-col items-center gap-0.5 text-slate-400">
-      <span class="text-base">⛰️</span><span>Topo</span>
-    </button>
-    <button onclick="switchTab('jgra')" class="flex flex-col items-center gap-0.5 text-slate-400">
-      <span class="text-base">✅</span><span>JGRa</span>
-    </button>
-    <button onclick="switchTab('wrf')" class="flex flex-col items-center gap-0.5 text-slate-400">
-      <span class="text-base">☀️</span><span>WRF</span>
+    <button onclick="switchTab('roadmap')" id="mob-roadmap" class="flex flex-col items-center text-[11px] text-slate-400">
+      <span class="text-base">🌸</span><span>Flow/Cycle</span>
     </button>
   </nav>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    const STORAGE_KEY = 'focusflow_workspace_v1';
+
+    function getTodayISO() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
     }
 
-    const DEFAULT_TASKS = [
-      // WED NOV 18
-      { id: "n1", tab: "daily", week: "p1", day: "Wed, Nov 18", dateStr: "20261118", startHour: "103000", endHour: "110000", slot: "10:30 – 11:00 AM", pomos: 1, category: "Committee Admin", title: "Verify Nov 30 Calendar Invite shows all 5 committee members & click 'Email guests / Send Update' so everyone has the Nov 30 time", est: "25m" },
-      { id: "n2", tab: "daily", week: "p1", day: "Wed, Nov 18", dateStr: "20261118", startHour: "110500", endHour: "115500", slot: "11:05 – 11:55 AM", pomos: 2, category: "🌊 PDO–MJO CIRES", title: "Review 2-paragraph PDO–MJO outline & send email + CV to Dr. Antonietta Capotondi (cc'ing Dr. Juliana Dias)", est: "50m" },
-      { id: "n3a", tab: "daily", week: "p1", day: "Wed, Nov 18", dateStr: "20261118", startHour: "130000", endHour: "143000", slot: "1:00 – 2:30 PM", pomos: 3, category: "Q2 Topography", title: "Deep Work Block 1: Run MGWR significance test (compute local t-values / p < 0.05 mask for Elevation, Slope, WDEI, Distance to Coast)", est: "1.5h" },
-      { id: "n3b", tab: "daily", week: "p1", day: "Wed, Nov 18", dateStr: "20261118", startHour: "150000", endHour: "161500", slot: "3:00 – 4:15 PM", pomos: 2, category: "Q2 Topography", title: "Deep Work Block 2: Verify MGWR significance mask across Sumatra, Borneo, and New Guinea & save plotting arrays for Fig 6", est: "1h" },
-
-      // THU NOV 19
-      { id: "n4a", tab: "daily", week: "p1", day: "Thu, Nov 19", dateStr: "20261119", startHour: "093000", endHour: "113000", slot: "9:30 – 11:30 AM", pomos: 4, category: "Q2 Topography", title: "Deep Work Block 1: Redraw Topography Fig 1 (6-panel MC map: IMERG precip, ETOPO1 elevation, 3D slope, relief, coastal distance, WDEI)", est: "2h" },
-      { id: "n4b", tab: "daily", week: "p1", day: "Thu, Nov 19", dateStr: "20261119", startHour: "130000", endHour: "143000", slot: "1:00 – 2:30 PM", pomos: 3, category: "Q2 Topography", title: "Deep Work Block 2: Redraw Topography Figs 2 & 3 (Seasonal precip/u/v wind anomalies & seasonal wind vectors + WDEI)", est: "1.5h" },
-      { id: "n5", tab: "daily", week: "p1", day: "Thu, Nov 19", dateStr: "20261119", startHour: "150000", endHour: "155000", slot: "3:00 – 3:50 PM", pomos: 2, category: "🌊 PDO–MJO CIRES", title: "PDO Reading Block: Read Maher, Kay, & Capotondi (2022, ERL — PDO modulation of ENSO teleconnections) & note Large Ensemble setup", est: "45m" },
-
-      // FRI NOV 20
-      { id: "n6a", tab: "daily", week: "p1", day: "Fri, Nov 20", dateStr: "20261120", startHour: "093000", endHour: "113000", slot: "9:30 – 11:30 AM", pomos: 4, category: "Q2 Topography", title: "Deep Work Block 1: Redraw Topography Figs 4 & 5 (Latitudinal & Longitudinal FFT spectral density over Mountains vs Plains)", est: "2h" },
-      { id: "n6b", tab: "daily", week: "p1", day: "Fri, Nov 20", dateStr: "20261120", startHour: "130000", endHour: "143000", slot: "1:00 – 2:30 PM", pomos: 3, category: "Q2 Topography", title: "Deep Work Block 2: Redraw Topography Fig 6 (MGWR β maps with p < 0.05 stippling) & Fig 7 (Intraseasonal variance ratio jPDF)", est: "1.5h" },
-      { id: "n7", tab: "daily", week: "p1", day: "Fri, Nov 20", dateStr: "20261120", startHour: "150000", endHour: "155000", slot: "3:00 – 3:50 PM", pomos: 2, category: "🌊 PDO–MJO CIRES", title: "PDO Reading Block: Read Dias, Tulich, Gehne, & Kiladis (2021, MWR — Tropical origins of Weeks 2–4 forecast errors)", est: "45m" },
-
-      // SAT NOV 21
-      { id: "n8", tab: "daily", week: "p1", day: "Sat, Nov 21", dateStr: "20261121", startHour: "100000", endHour: "123000", slot: "10:00 AM – 12:30 PM", pomos: 4, category: "Q2 Topography", title: "Insert new Figs 1–7 into shortened Topography draft (~3,650 words) & check all figure numbers/captions", est: "2.5h" },
-      { id: "n9", tab: "daily", week: "p1", day: "Sat, Nov 21", dateStr: "20261121", startHour: "140000", endHour: "145000", slot: "2:00 – 2:50 PM", pomos: 2, category: "🌊 PDO–MJO CIRES", title: "Quick exploratory check: compare observed MJO RMM/OMI propagation across MC during Cool PDO (1999–2013, 2020–25) vs Warm PDO (1979–98, 2014–19)", est: "50m" },
-
-      // SUN NOV 22
-      { id: "n10", tab: "daily", week: "p1", day: "Sun, Nov 22", dateStr: "20261122", startHour: "100000", endHour: "113000", slot: "10:00 – 11:30 AM", pomos: 3, category: "Q2 Topography", title: "🎉 Final proofread & email Topography manuscript + figures to Dr. Pallav Ray & co-authors (Johnson, Nikolopoulos, Lestari, Alex) for review!", est: "1.5h" },
-      { id: "n11", tab: "daily", week: "p1", day: "Sun, Nov 22", dateStr: "20261122", startHour: "140000", endHour: "145000", slot: "2:00 – 2:50 PM", pomos: 2, category: "🌊 PDO–MJO CIRES", title: "Draft 1-page section outline of the 3-page PDO–MJO CIRES Proposal (RQ1: Warm Pool/MC Barrier; RQ2: Large Ensembles; RQ3: Weeks 2–4 Teleconnections)", est: "50m" },
-
-      // MON NOV 23
-      { id: "n12a", tab: "daily", week: "p2", day: "Mon, Nov 23", dateStr: "20261123", startHour: "093000", endHour: "110000", slot: "9:30 – 11:00 AM", pomos: 3, category: "Q1 SM Review", title: "Paste all 9 quick reference/URL/caption fixes from jgra_reply_to_reviewer1.md into your SM manuscript", est: "1.5h" },
-      { id: "n12b", tab: "daily", week: "p2", day: "Mon, Nov 23", dateStr: "20261123", startHour: "130000", endHour: "143000", slot: "1:00 – 2:30 PM", pomos: 3, category: "Q1 SM Review", title: "Update SM Figs 1, 5e & 6e (shade/explain no-data in Sumatra inset of Fig 1; draw 0 mm/day horizontal line on Figs 5e & 6e)", est: "1.5h" },
-      { id: "n13", tab: "daily", week: "p2", day: "Mon, Nov 23", dateStr: "20261123", startHour: "150000", endHour: "160000", slot: "3:00 – 4:00 PM", pomos: 2, category: "🌊 PDO–MJO & Postdoc", title: "Follow up on Antonietta & Juliana reply + submit University of Oklahoma Subseasonal Prediction Postdoc (Interfolio priority deadline Nov 23!)", est: "1h" },
-
-      // TUE NOV 24
-      { id: "n14", tab: "daily", week: "p2", day: "Tue, Nov 24", dateStr: "20261124", startHour: "093000", endHour: "120000", slot: "9:30 AM – 12:00 PM", pomos: 4, category: "Q1 SM Review", title: "Insert scientific text additions into SM manuscript (BMKG in-situ details L.151, E/W Philippines DJF rain L.258, Fig 3e check L.305, EOF-1 persistence L.350)", est: "2.5h" },
-      { id: "n15", tab: "daily", week: "p2", day: "Tue, Nov 24", dateStr: "20261124", startHour: "140000", endHour: "145000", slot: "2:00 – 2:50 PM", pomos: 2, category: "🌊 PDO–MJO CIRES", title: "Generate 1 preliminary schematic or composite figure for the PDO–MJO CIRES Proposal (PDO+ vs PDO- Indo-Pacific state & MJO propagation)", est: "50m" },
-
-      // WED NOV 25
-      { id: "n16", tab: "daily", week: "p2", day: "Wed, Nov 25", dateStr: "20261125", startHour: "093000", endHour: "113000", slot: "9:30 – 11:30 AM", pomos: 4, category: "Q1 SM Review", title: "Insert MJO RMM vs OMI discussion (Kiladis 2014 / Straub 2013, L.384) & Fig 12 vs 13 latitude text (L.438) → Send completed JGRa Reply & Revised Manuscript to Dr. Ray!", est: "2h" },
-      { id: "n17", tab: "daily", week: "p2", day: "Wed, Nov 25", dateStr: "20261125", startHour: "140000", endHour: "145000", slot: "2:00 – 2:50 PM", pomos: 2, category: "🌊 PDO–MJO CIRES", title: "Draft Section 1 (Background, Motivation & Knowledge Gaps) of the 3-page PDO–MJO CIRES Proposal", est: "50m" },
-
-      // THU NOV 26 - MON NOV 30
-      { id: "n18", tab: "daily", week: "p3", day: "Thu, Nov 26 (Thanksgiving)", dateStr: "20261126", startHour: "100000", endHour: "103000", slot: "Flexible / Rest", pomos: 1, category: "Light / Rest", title: "Thanksgiving Day — Rest & recharge! (Optional 25m: gather existing WRF-SCM & Emanuel 1D plots into one folder)", est: "25m" },
-      { id: "n19", tab: "daily", week: "p3", day: "Fri, Nov 27", dateStr: "20261127", startHour: "093000", endHour: "123000", slot: "9:30 AM – 12:30 PM", pomos: 5, category: "Q3 WRF-SCM Doc", title: "Assemble clean WRF-SCM & Insolation Results Doc (1. Seasonal TOA insolation/IMERG diurnal cycle, 2. Emanuel 1D MSE & ARM Manus regimes, 3. WRF 1D Exp 1/2 + 2D Sea Breeze)", est: "3h" },
-      { id: "n20", tab: "daily", week: "p3", day: "Sat, Nov 28", dateStr: "20261128", startHour: "100000", endHour: "130000", slot: "10:00 AM – 1:00 PM", pomos: 5, category: "Committee Slides", title: "Build Fall Committee Meeting Presentation (15–20 slides: Overview, Q1 SM Revision Done, Q2 Topo Sent to Co-Authors, Q3 Insolation/WRF-SCM/LSB Results, Q4 ET Plan & Spring 2027 Defense Timeline)", est: "3h" },
-      { id: "n21", tab: "daily", week: "p3", day: "Sun, Nov 29", dateStr: "20261129", startHour: "100000", endHour: "113000", slot: "10:00 – 11:30 AM", pomos: 3, category: "Committee Prep", title: "Email WRF-SCM summary doc / pre-read to Dr. Ray & do one 20-minute practice run of your slides", est: "1.5h" },
-      { id: "n22", tab: "daily", week: "p3", day: "Mon, Nov 30", dateStr: "20261130", startHour: "100000", endHour: "113000", slot: "Committee Meeting Slot", pomos: 3, category: "Committee Meeting", title: "🎯 FALL PHD COMMITTEE MEETING! Present your progress & confirm your Jan–April 2027 defense milestones with the committee", est: "1.5h" },
-
-      // PHASE 4: DEC 1 - DEC 21
-      { id: "n23", tab: "daily", week: "p4", day: "Dec 1 – Dec 4", dateStr: "20261201", startHour: "093000", endHour: "120000", slot: "Morning Deep Work", pomos: 8, category: "🌊 PDO–MJO CIRES", title: "Draft Sections 2, 3 & 4 of the 3-page PDO–MJO CIRES Proposal (Science Questions, Large Ensemble + S2S Reforecast Methods, Timeline) & request 3 recommendation letters (due Jan 8)", est: "5h" },
-      { id: "n24", tab: "daily", week: "p4", day: "Dec 5 – Dec 9", dateStr: "20261205", startHour: "093000", endHour: "120000", slot: "Morning Deep Work", pomos: 6, category: "🌊 PDO–MJO CIRES", title: "Send full 3-page PDO–MJO CIRES Proposal draft to Dr. Antonietta Capotondi, Dr. Juliana Dias, & Dr. Pallav Ray for feedback; finalize 2-page Cover Letter & 2-page NSF CV", est: "4h" },
-      { id: "n25", tab: "daily", week: "p4", day: "Dec 10 – Dec 15", dateStr: "20261210", startHour: "133000", endHour: "160000", slot: "Afternoon Blocks", pomos: 6, category: "Postdoc Pipeline", title: "Update website (sputhiyamadam.github.io) & submit 2–3 priority LinkedIn/board postdoc applications (Stanford MJO, LLNL ARM, UC Irvine SMAP)", est: "4h" },
-      { id: "n26", tab: "daily", week: "p4", day: "Dec 16 – Dec 21", dateStr: "20261216", startHour: "093000", endHour: "120000", slot: "Final Polish", pomos: 5, category: "🌊 PDO–MJO CIRES", title: "Incorporate Antonietta & Juliana's feedback & submit full CIRES Visiting Postdoctoral Fellowship application (Deadline: Dec 21, 11:59 PM MST)", est: "3h" },
-
-      // CHECKLIST TABS
-      { id: "p1", tab: "postdoc", category: "Step-by-Step PDO–MJO CIRES Roadmap", title: "Step 1 (Nov 18): Send 2-paragraph PDO–MJO approach email + CV to Dr. Antonietta Capotondi (cc'ing Dr. Juliana Dias)", est: "50m" },
-      { id: "p2", tab: "postdoc", category: "Step-by-Step PDO–MJO CIRES Roadmap", title: "Step 2 (Nov 19–20): Read key papers by your hosts — Maher, Kay & Capotondi (2022, ERL) on PDO teleconnections + Dias et al. (2021, MWR) on Weeks 2–4 tropical forecast errors", est: "1.5h" },
-      { id: "p3", tab: "postdoc", category: "Step-by-Step PDO–MJO CIRES Roadmap", title: "Step 3 (Nov 21–24): Plot 1 quick preliminary figure (e.g., OLR/MJO variance or propagation across MC in PDO+ vs PDO- eras, or schematic of PDO–MJO mechanisms)", est: "1.5h" },
-      { id: "p4", tab: "postdoc", category: "Step-by-Step PDO–MJO CIRES Roadmap", title: "Step 4 (Nov 25 – Dec 4): Write full 3-page PDO–MJO Proposal (12pt font, including Figure 1 & Timeline) + request 3 Letters of Recommendation (Ray, Johnson, Vinayachandran)", est: "6h" },
-      { id: "p5", tab: "postdoc", category: "Step-by-Step PDO–MJO CIRES Roadmap", title: "Step 5 (Dec 5–9): Send 3-page draft to Antonietta & Juliana for iteration; finalize 2-page CIRES Cover Letter & 2-page NSF-format CV", est: "4h" },
-      { id: "p6", tab: "postdoc", category: "Step-by-Step PDO–MJO CIRES Roadmap", title: "Step 6 (Dec 16–21): Incorporate sponsor edits & submit to insidecires.colorado.edu/visitingfellow/ before Dec 21!", est: "3h" },
-
-      { id: "t1", tab: "topo", category: "Nov 18–22 Topography Checklist", title: "1. Run MGWR local t-stat / p < 0.05 significance test across Sumatra, Borneo, and New Guinea", est: "Nov 18" },
-      { id: "t2", tab: "topo", category: "Nov 18–22 Topography Checklist", title: "2. Redraw Figs 1–3 (Topographic variables, seasonal precip/wind anomalies, WDEI)", est: "Nov 19" },
-      { id: "t3", tab: "topo", category: "Nov 18–22 Topography Checklist", title: "3. Redraw Figs 4–7 (FFT spectral density, MGWR β maps with stippling, intraseasonal jPDF)", est: "Nov 20" },
-      { id: "t4", tab: "topo", category: "Nov 18–22 Topography Checklist", title: "4. Combine figures with shortened 3,650-word manuscript & send to Dr. Ray + co-authors", est: "Nov 21–22" },
-
-      { id: "j1", tab: "jgra", category: "Nov 23–25 JGRa SM Revision Checklist", title: "1. Paste all 9 reference/version/URL updates from jgra_reply_to_reviewer1.md into SM manuscript", est: "Nov 23" },
-      { id: "j2", tab: "jgra", category: "Nov 23–25 JGRa SM Revision Checklist", title: "2. Update Fig 1 (Sumatra no-data color/caption) and add 0 mm/day line to Figs 5e & 6e", est: "Nov 23" },
-      { id: "j3", tab: "jgra", category: "Nov 23–25 JGRa SM Revision Checklist", title: "3. Add BMKG in-situ details (L.151), E/W Philippines DJF rain (L.258), Fig 3e regional check (L.305), & EOF-1 text (L.350)", est: "Nov 24" },
-      { id: "j4", tab: "jgra", category: "Nov 23–25 JGRa SM Revision Checklist", title: "4. Add RMM vs OMI discussion (Kiladis 2014 / Straub 2013) & Fig 12 vs 13 latitude text → Send to Dr. Ray", est: "Nov 25" },
-
-      { id: "w1", tab: "wrf", category: "Nov 26–30 WRF-SCM & Committee Checklist", title: "1. Compile WRF-SCM & Insolation Results Google Doc (TOA insolation, Emanuel 1D MSE, WRF 1D Exp 1/Exp 2, WRF 2D Sea Breeze)", est: "Nov 27" },
-      { id: "w2", tab: "wrf", category: "Nov 26–30 WRF-SCM & Committee Checklist", title: "2. Create Fall Committee Meeting Slides (Progress on Q1 SM, Q2 Topo, Q3 Insolation/WRF-SCM, Q4 ET & April 2027 Defense Plan)", est: "Nov 28" },
-      { id: "w3", tab: "wrf", category: "Nov 26–30 WRF-SCM & Committee Checklist", title: "3. Present at Fall PhD Committee Meeting on Monday, Nov 30!", est: "Nov 30" }
-    ];
-
-    let state = { tasks: {}, taskPomos: {}, totalPomos: 0, customTasks: [] };
-    let currentWeekFilter = 'all';
-    let selectedDay = 'Wed, Nov 18';
-    let activeTaskId = 'n1';
-
-    let timerSeconds = 25 * 60;
-    let initialSeconds = 25 * 60;
-    let timerRunning = false;
-    let timerInterval = null;
-    let currentMode = 'Focus (25m)';
-
-    function getAllTasks() {
-      return [...DEFAULT_TASKS, ...(state.customTasks || [])];
+    function getDefaultSampleWorkspace() {
+      const today = getTodayISO();
+      return {
+        pomoTodayCount: 0,
+        projects: [
+          {
+            id: 'proj-deepwork',
+            name: 'Deep Research & Writing',
+            color: 'indigo',
+            link: '',
+            checklist: [
+              { id: 'c1', text: 'Outline core section / methodology', done: false },
+              { id: 'c2', text: 'Generate & verify primary figures', done: false },
+              { id: 'c3', text: 'Proofread and send draft for feedback', done: false }
+            ]
+          },
+          {
+            id: 'proj-admin',
+            name: 'Admin, Emails & Career',
+            color: 'emerald',
+            link: '',
+            checklist: [
+              { id: 'c4', text: 'Reply to priority emails & calendar invites', done: false },
+              { id: 'c5', text: 'Update CV / portfolio links', done: false }
+            ]
+          }
+        ],
+        dailyTasks: [
+          {
+            id: 't1',
+            date: today,
+            time: '09:00 - 09:30 AM',
+            title: 'Morning planning & priority inbox check',
+            projectId: 'proj-admin',
+            targetPomos: 1,
+            completedPomos: 0,
+            done: false
+          },
+          {
+            id: 't2',
+            date: today,
+            time: '09:35 - 11:15 AM',
+            title: 'Deep Work Block 1: Core analysis or writing sprint',
+            projectId: 'proj-deepwork',
+            targetPomos: 3,
+            completedPomos: 0,
+            done: false
+          },
+          {
+            id: 't3',
+            date: today,
+            time: '01:30 - 03:00 PM',
+            title: 'Deep Work Block 2: Figures, code, or manuscript edits',
+            projectId: 'proj-deepwork',
+            targetPomos: 3,
+            completedPomos: 0,
+            done: false
+          }
+        ]
+      };
     }
+
+    let state = loadState();
+    let selectedDate = getTodayISO();
 
     function loadState() {
       try {
-        const saved = localStorage.getItem('sreedevi_pomo_pwa_v1');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          state.tasks = parsed.tasks || {};
-          state.taskPomos = parsed.taskPomos || {};
-          state.totalPomos = parsed.totalPomos || 0;
-          state.customTasks = parsed.customTasks || [];
-        }
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
       } catch (e) {}
+      return getDefaultSampleWorkspace();
     }
 
     function saveState() {
-      try {
-        localStorage.setItem('sreedevi_pomo_pwa_v1', JSON.stringify(state));
-      } catch (e) {}
-    }
-
-    function addCustomTask() {
-      const slotEl = document.getElementById('custom-slot');
-      const titleEl = document.getElementById('custom-title');
-      const title = titleEl.value.trim();
-      if (!title) return;
-      const slot = slotEl.value.trim() || 'Flexible';
-      const newTask = {
-        id: 'custom_' + Date.now(),
-        tab: 'daily',
-        week: 'p1',
-        day: selectedDay,
-        dateStr: '20261118',
-        startHour: '160000',
-        endHour: '170000',
-        slot,
-        pomos: 1,
-        category: 'Custom',
-        title,
-        est: '25m'
-      };
-      state.customTasks.push(newTask);
-      slotEl.value = '';
-      titleEl.value = '';
-      saveState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderAll();
     }
 
-    function gcalLink(t) {
-      const date = t.dateStr || '20261118';
-      const st = t.startHour || '093000';
-      const et = t.endHour || '103000';
-      const text = encodeURIComponent(`🍅 [${t.category}] ${t.title}`);
-      const details = encodeURIComponent(`PhD Pomodoro Focus Block (${t.slot || t.est})\nTask: ${t.title}`);
-      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${date}T${st}/${date}T${et}&details=${details}`;
+    const COLOR_BADGES = {
+      indigo: 'bg-indigo-950/90 text-indigo-300 border-indigo-700/60',
+      emerald: 'bg-emerald-950/90 text-emerald-300 border-emerald-700/60',
+      amber: 'bg-amber-950/90 text-amber-300 border-amber-700/60',
+      sky: 'bg-sky-950/90 text-sky-300 border-sky-700/60',
+      rose: 'bg-rose-950/90 text-rose-300 border-rose-700/60'
+    };
+
+    function getProjectById(pid) {
+      return state.projects.find(p => p.id === pid) || { name: 'General', color: 'indigo', link: '' };
     }
 
-    function playChime() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.15);
-          gain.gain.setValueAtTime(0.18, ctx.currentTime + idx * 0.15);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.15 + 0.6);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + idx * 0.15);
-          osc.stop(ctx.currentTime + idx * 0.15 + 0.65);
+    function formatPrettyDate(isoStr) {
+      if (!isoStr) return '';
+      const [y, m, d] = isoStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function onDateChange(val) {
+      if (!val) return;
+      selectedDate = val;
+      renderAll();
+    }
+
+    function shiftSelectedDate(deltaDays) {
+      const [y, m, d] = selectedDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      dt.setDate(dt.getDate() + deltaDays);
+      const yyyy = dt.getFullYear();
+      const mm = String(dt.getMonth() + 1).padStart(2, '0');
+      const dd = String(dt.getDate()).padStart(2, '0');
+      selectedDate = `${yyyy}-${mm}-${dd}`;
+      renderAll();
+    }
+
+    function goToToday() {
+      selectedDate = getTodayISO();
+      renderAll();
+    }
+
+    function renderProjectSelect() {
+      const sel = document.getElementById('new-task-project');
+      sel.innerHTML = state.projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    function renderDailyBlocks() {
+      document.getElementById('selected-date-input').value = selectedDate;
+      document.getElementById('selected-date-pretty').textContent = formatPrettyDate(selectedDate);
+
+      const container = document.getElementById('daily-blocks-container');
+      const tasks = state.dailyTasks.filter(t => t.date === selectedDate);
+
+      if (tasks.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-800/50 border border-dashed border-slate-700 rounded-2xl p-8 text-center space-y-2">
+            <div class="text-sm font-semibold text-slate-300">No time blocks scheduled for ${formatPrettyDate(selectedDate)}</div>
+            <p class="text-xs text-slate-400">Add a time slot above (e.g. 09:00 - 10:00 AM) to plan your day!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = tasks.map(t => {
+        const proj = getProjectById(t.projectId);
+        const badgeCls = COLOR_BADGES[proj.color] || COLOR_BADGES.indigo;
+        const isActive = activeTaskId === t.id;
+        const pomos = '🍅'.repeat(t.targetPomos || 1);
+
+        return `
+          <div class="bg-slate-800 border border-slate-700 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition ${isActive ? 'active-pomo-card' : ''}">
+            <div class="flex items-start gap-3">
+              <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDailyTask('${t.id}')" class="mt-1 h-4 w-4 rounded border-slate-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-mono font-semibold text-amber-300 bg-slate-900 px-2 py-0.5 rounded border border-slate-700">⏰ ${t.time}</span>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded border ${badgeCls}">${proj.name}</span>
+                  <span class="text-xs" title="Target Pomodoros">${pomos} <span class="text-[11px] text-slate-400">(${t.completedPomos || 0}/${t.targetPomos || 1} done)</span></span>
+                  ${proj.link ? `<a href="${proj.link}" target="_blank" class="text-[11px] text-indigo-400 hover:underline">🔗 Open Doc ↗</a>` : ''}
+                </div>
+                <div class="text-sm font-medium text-slate-100 ${t.done ? 'task-done' : ''}">${t.title}</div>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1.5 sm:shrink-0">
+              <button onclick="startTaskPomodoro('${t.id}', 25)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white">▶ 25m</button>
+              <button onclick="startTaskPomodoro('${t.id}', 50)" class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-700 hover:bg-slate-600 text-amber-300">▶ 50m</button>
+              <button onclick="openGoogleCalendarReminder('${t.id}')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-900 border border-slate-700 text-slate-200 hover:border-indigo-500" title="Add native reminder in Google Calendar">📅 Remind</button>
+              <button onclick="deleteDailyTask('${t.id}')" class="px-2 py-1 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-rose-400" title="Delete block">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderProjects() {
+      const container = document.getElementById('projects-container');
+      if (state.projects.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400">No projects yet. Create one above!</div>`;
+        return;
+      }
+
+      container.innerHTML = state.projects.map(p => {
+        const badgeCls = COLOR_BADGES[p.color] || COLOR_BADGES.indigo;
+        const doneCount = p.checklist.filter(c => c.done).length;
+        return `
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+            <div class="space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span class="text-xs font-bold px-2.5 py-0.5 rounded border ${badgeCls}">${p.name}</span>
+                  ${p.link ? `<div class="mt-1.5"><a href="${p.link}" target="_blank" class="text-xs text-indigo-400 hover:underline">🔗 Open Project Document / Repo ↗</a></div>` : ''}
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono text-slate-400">${doneCount}/${p.checklist.length}</span>
+                  <button onclick="deleteProject('${p.id}')" class="text-xs text-slate-500 hover:text-rose-400" title="Delete project">🗑️</button>
+                </div>
+              </div>
+
+              <div class="space-y-1.5 pt-1">
+                ${p.checklist.map(item => `
+                  <div class="flex items-center justify-between gap-2 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-1.5">
+                    <label class="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer flex-1">
+                      <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem('${p.id}', '${item.id}')" class="h-3.5 w-3.5 rounded border-slate-600 text-indigo-600" />
+                      <span class="${item.done ? 'task-done' : ''}">${item.text}</span>
+                    </label>
+                    <button onclick="deleteChecklistItem('${p.id}', '${item.id}')" class="text-slate-500 hover:text-rose-400 text-xs">✕</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t border-slate-700/60">
+              <input id="chk-input-${p.id}" type="text" placeholder="Add checklist milestone..." onkeydown="if(event.key==='Enter') addChecklistItem('${p.id}')" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500" />
+              <button onclick="addChecklistItem('${p.id}')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg">+ Add</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAllDaysOverview() {
+      const container = document.getElementById('all-days-container');
+      const grouped = {};
+      state.dailyTasks.forEach(t => {
+        if (!grouped[t.date]) grouped[t.date] = [];
+        grouped[t.date].push(t);
+      });
+
+      const dates = Object.keys(grouped).sort();
+      if (dates.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400">No scheduled blocks yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = dates.map(dt => {
+        const list = grouped[dt];
+        const done = list.filter(x => x.done).length;
+        return `
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2.5">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+              <button onclick="jumpToDate('${dt}')" class="text-sm font-bold text-indigo-300 hover:underline text-left">
+                📅 ${formatPrettyDate(dt)}
+              </button>
+              <span class="text-xs font-mono text-slate-400">${done}/${list.length} completed</span>
+            </div>
+            <div class="space-y-1.5">
+              ${list.map(t => {
+                const proj = getProjectById(t.projectId);
+                return `
+                  <div class="flex items-center justify-between text-xs bg-slate-900/60 rounded-lg px-3 py-1.5 border border-slate-700/60">
+                    <div class="flex items-center gap-2">
+                      <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDailyTask('${t.id}')" class="h-3.5 w-3.5 rounded" />
+                      <span class="font-mono text-amber-300">${t.time}</span>
+                      <span class="${t.done ? 'task-done text-slate-400' : 'text-slate-100'}">${t.title}</span>
+                    </div>
+                    <span class="text-[11px] text-slate-400">${proj.name}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateOverallProgress() {
+      const totalDaily = state.dailyTasks.length;
+      const doneDaily = state.dailyTasks.filter(t => t.done).length;
+      let totalChk = 0;
+      let doneChk = 0;
+      state.projects.forEach(p => {
+        totalChk += p.checklist.length;
+        doneChk += p.checklist.filter(c => c.done).length;
+      });
+      const total = totalDaily + totalChk;
+      const done = doneDaily + doneChk;
+      document.getElementById('overall-progress-text').textContent = `${done} / ${total}`;
+      document.getElementById('pomo-session-counter').textContent = `🍅 ${state.pomoTodayCount || 0} today`;
+    }
+
+    function renderAll() {
+      renderProjectSelect();
+      renderDailyBlocks();
+      renderProjects();
+      renderAllDaysOverview();
+      updateOverallProgress();
+    }
+
+    function addDailyTask() {
+      const timeEl = document.getElementById('new-task-time');
+      const titleEl = document.getElementById('new-task-title');
+      const projEl = document.getElementById('new-task-project');
+      const pomosEl = document.getElementById('new-task-pomos');
+
+      const title = titleEl.value.trim();
+      if (!title) return;
+      const time = timeEl.value.trim() || 'Flexible Block';
+
+      state.dailyTasks.push({
+        id: 'task-' + Date.now(),
+        date: selectedDate,
+        time,
+        title,
+        projectId: projEl.value || (state.projects[0] && state.projects[0].id) || 'general',
+        targetPomos: parseInt(pomosEl.value, 10) || 1,
+        completedPomos: 0,
+        done: false
+      });
+
+      timeEl.value = '';
+      titleEl.value = '';
+      saveState();
+    }
+
+    function toggleDailyTask(id) {
+      const item = state.dailyTasks.find(t => t.id === id);
+      if (item) {
+        item.done = !item.done;
+        saveState();
+      }
+    }
+
+    function deleteDailyTask(id) {
+      state.dailyTasks = state.dailyTasks.filter(t => t.id !== id);
+      if (activeTaskId === id) activeTaskId = null;
+      saveState();
+    }
+
+    function addProject() {
+      const nameEl = document.getElementById('new-proj-name');
+      const linkEl = document.getElementById('new-proj-link');
+      const colorEl = document.getElementById('new-proj-color');
+      const name = nameEl.value.trim();
+      if (!name) return;
+
+      state.projects.push({
+        id: 'proj-' + Date.now(),
+        name,
+        link: linkEl.value.trim(),
+        color: colorEl.value || 'indigo',
+        checklist: []
+      });
+
+      nameEl.value = '';
+      linkEl.value = '';
+      saveState();
+    }
+
+    function deleteProject(pid) {
+      if (!confirm('Delete this project and its checklist?')) return;
+      state.projects = state.projects.filter(p => p.id !== pid);
+      saveState();
+    }
+
+    function addChecklistItem(pid) {
+      const input = document.getElementById('chk-input-' + pid);
+      if (!input || !input.value.trim()) return;
+      const proj = state.projects.find(p => p.id === pid);
+      if (proj) {
+        proj.checklist.push({
+          id: 'chk-' + Date.now(),
+          text: input.value.trim(),
+          done: false
         });
-      } catch (e) {}
+        input.value = '';
+        saveState();
+      }
     }
 
-    function enableNotifications() {
-      if (!("Notification" in window)) return;
-      Notification.requestPermission().then(perm => {
-        const btn = document.getElementById('btn-notify');
-        if (perm === 'granted') {
-          btn.textContent = '🔔 On';
-          new Notification("🍅 Pomodoro Alerts Active!", {
-            body: "You'll get a chime & alert whenever a focus block finishes."
-          });
+    function toggleChecklistItem(pid, cid) {
+      const proj = state.projects.find(p => p.id === pid);
+      if (!proj) return;
+      const item = proj.checklist.find(c => c.id === cid);
+      if (item) {
+        item.done = !item.done;
+        saveState();
+      }
+    }
+
+    function deleteChecklistItem(pid, cid) {
+      const proj = state.projects.find(p => p.id === pid);
+      if (!proj) return;
+      proj.checklist = proj.checklist.filter(c => c.id !== cid);
+      saveState();
+    }
+
+    function jumpToDate(dt) {
+      selectedDate = dt;
+      switchTab('today');
+      renderAll();
+    }
+
+    function switchTab(tab) {
+      ['today', 'projects', 'upcoming', 'roadmap'].forEach(t => {
+        document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
+        const deskTab = document.getElementById('tab-' + t);
+        if (deskTab) {
+          if (t === tab) {
+            deskTab.classList.add('tab-active');
+            deskTab.classList.remove('text-slate-400');
+          } else {
+            deskTab.classList.remove('tab-active');
+            deskTab.classList.add('text-slate-400');
+          }
+        }
+        const mobTab = document.getElementById('mob-' + t);
+        if (mobTab) {
+          mobTab.className = t === tab
+            ? 'flex flex-col items-center text-[11px] text-indigo-400 font-semibold'
+            : 'flex flex-col items-center text-[11px] text-slate-400';
         }
       });
     }
 
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
+    // POMODORO TIMER ENGINE
+    let timerSeconds = 25 * 60;
+    let timerInitialSeconds = 25 * 60;
+    let timerInterval = null;
+    let timerRunning = false;
+    let activeTaskId = null;
 
-    function updateTimerUI() {
-      document.getElementById('timer-display').textContent = formatTime(timerSeconds);
-      document.getElementById('timer-mode-label').textContent = currentMode.split(' ')[0];
-      const btn = document.getElementById('btn-start-pause');
-      btn.textContent = timerRunning ? '⏸ Pause' : '▶ Start';
+    function updateTimerDisplay() {
+      const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const s = String(timerSeconds % 60).padStart(2, '0');
+      document.getElementById('timer-display').textContent = `${m}:${s}`;
+      document.title = timerRunning ? `(${m}:${s}) FocusFlow` : 'FocusFlow — Time-Blocked Pomodoro Studio';
     }
 
     function setTimerPreset(mins, label) {
-      if (timerInterval) clearInterval(timerInterval);
-      timerRunning = false;
-      initialSeconds = mins * 60;
-      timerSeconds = initialSeconds;
-      currentMode = label;
-      updateTimerUI();
+      pauseTimer();
+      timerSeconds = mins * 60;
+      timerInitialSeconds = mins * 60;
+      document.getElementById('timer-mode-label').textContent = label.split(' ')[0];
+      updateTimerDisplay();
+    }
+
+    function setCustomTimer() {
+      const val = prompt('Enter custom timer minutes (e.g. 15, 45, 90):', '45');
+      const mins = parseInt(val, 10);
+      if (mins && mins > 0 && mins <= 240) {
+        setTimerPreset(mins, `Custom (${mins}m)`);
+      }
+    }
+
+    function startTaskPomodoro(taskId, mins) {
+      const task = state.dailyTasks.find(t => t.id === taskId);
+      if (!task) return;
+      activeTaskId = taskId;
+      document.getElementById('active-task-label').textContent = `${task.time} — ${task.title}`;
+      setTimerPreset(mins, `Focus (${mins}m)`);
+      toggleTimer();
+      renderDailyBlocks();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function toggleTimer() {
       if (timerRunning) {
-        clearInterval(timerInterval);
-        timerRunning = false;
-        updateTimerUI();
+        pauseTimer();
       } else {
         timerRunning = true;
-        updateTimerUI();
+        document.getElementById('timer-start-btn').textContent = '⏸ Pause';
         timerInterval = setInterval(() => {
           if (timerSeconds > 0) {
             timerSeconds--;
-            updateTimerUI();
+            updateTimerDisplay();
           } else {
-            clearInterval(timerInterval);
-            timerRunning = false;
-            playChime();
-            if (currentMode.includes('Focus') || currentMode.includes('Deep')) {
-              state.totalPomos = (state.totalPomos || 0) + 1;
-              if (activeTaskId) {
-                state.taskPomos[activeTaskId] = (state.taskPomos[activeTaskId] || 0) + 1;
-              }
-              saveState();
-              renderAll();
-              if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("🍅 Pomodoro Complete! Time for a 5m break.", {
-                  body: document.getElementById('active-task-name').textContent
-                });
-              }
-              setTimerPreset(5, 'Break (5m)');
-            } else {
-              setTimerPreset(25, 'Focus (25m)');
-            }
+            onTimerComplete();
           }
         }, 1000);
       }
     }
 
-    function resetTimer() {
-      if (timerInterval) clearInterval(timerInterval);
+    function pauseTimer() {
       timerRunning = false;
-      timerSeconds = initialSeconds;
-      updateTimerUI();
+      clearInterval(timerInterval);
+      document.getElementById('timer-start-btn').textContent = '▶ Start';
+      updateTimerDisplay();
     }
 
-    function completePomodoroManual() {
-      state.totalPomos = (state.totalPomos || 0) + 1;
-      if (activeTaskId) {
-        state.taskPomos[activeTaskId] = (state.taskPomos[activeTaskId] || 0) + 1;
-      }
+    function resetTimer() {
+      pauseTimer();
+      timerSeconds = timerInitialSeconds;
+      updateTimerDisplay();
+    }
+
+    function playChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.16, ctx.currentTime + idx * 0.18);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.18 + 0.5);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.18);
+          osc.stop(ctx.currentTime + idx * 0.18 + 0.55);
+        });
+      } catch (e) {}
+    }
+
+    function onTimerComplete() {
+      pauseTimer();
       playChime();
-      saveState();
-      renderAll();
-    }
-
-    function launchTaskPomodoro(id) {
-      activeTaskId = id;
-      const t = getAllTasks().find(x => x.id === id);
-      if (t) {
-        document.getElementById('active-task-name').textContent = `${t.day} (${t.slot || t.est}) — ${t.title}`;
-      }
-      setTimerPreset(25, 'Focus (25m)');
-      toggleTimer();
-      renderTimeblocks();
-    }
-
-    function selectDay(dayStr) {
-      selectedDay = dayStr;
-      renderTimeblocks();
-    }
-
-    function toggleTask(id) {
-      state.tasks[id] = !state.tasks[id];
-      saveState();
-      renderAll();
-    }
-
-    function switchTab(tab) {
-      ['today', 'daily', 'postdoc', 'topo', 'jgra', 'wrf'].forEach(t => {
-        document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
-        const btn = document.getElementById('tab-' + t);
-        if (btn) {
-          if (t === tab) {
-            btn.classList.add('tab-active');
-            btn.classList.remove('text-slate-400');
-          } else {
-            btn.classList.remove('tab-active');
-            btn.classList.add('text-slate-400');
-          }
+      state.pomoTodayCount = (state.pomoTodayCount || 0) + 1;
+      if (activeTaskId) {
+        const task = state.dailyTasks.find(t => t.id === activeTaskId);
+        if (task) {
+          task.completedPomos = (task.completedPomos || 0) + 1;
         }
-      });
+      }
+      saveState();
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('🍅 Session Complete!', {
+          body: 'Great focus block! Take a 5-minute break, stretch, and hydrate.'
+        });
+      } else {
+        alert('🍅 Session Complete! Time for a 5-minute break.');
+      }
     }
 
-    function filterWeek(w) {
-      currentWeekFilter = w;
-      renderDaily();
+    function testSoundAndNotifications() {
+      playChime();
+      if ('Notification' in window) {
+        Notification.requestPermission().then(perm => {
+          document.getElementById('notif-btn').textContent = perm === 'granted' ? '🔔 Alerts Active' : '🔔 Chime Tested';
+        });
+      }
     }
 
-    function renderTimeblocks() {
-      const container = document.getElementById('timeblocks-container');
-      const items = getAllTasks().filter(t => t.tab === 'daily' && t.day === selectedDay);
-
-      container.innerHTML = items.map(t => {
-        const done = !!state.tasks[t.id];
-        const donePomos = state.taskPomos[t.id] || 0;
-        const targetPomos = t.pomos || 1;
-        const isActive = activeTaskId === t.id;
-        const tomatoes = Array.from({ length: Math.max(targetPomos, donePomos) }, (_, i) =>
-          i < donePomos ? '🍅' : '⚪'
-        ).join(' ');
-
-        return `
-          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${isActive ? 'active-pomo-card' : ''} ${done ? 'opacity-60' : ''}">
-            <div class="flex items-start gap-3">
-              <input type="checkbox" ${done ? 'checked' : ''} onchange="toggleTask('${t.id}')" class="mt-1 accent-indigo-500 w-4 h-4 rounded cursor-pointer" />
-              <div class="space-y-1">
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="px-2 py-0.5 rounded-lg text-xs font-mono font-bold bg-slate-900 border border-slate-700 text-indigo-400">⏰ ${t.slot || t.est}</span>
-                  <span class="px-2 py-0.5 rounded-lg text-[11px] font-semibold bg-slate-900 border border-slate-700 text-slate-300">${t.category}</span>
-                  <span class="text-xs font-mono text-slate-400">${tomatoes} (${donePomos}/${targetPomos})</span>
-                </div>
-                <div class="text-sm font-medium text-slate-100 ${done ? 'task-done' : ''}">${t.title}</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
-              <a href="${gcalLink(t)}" target="_blank" class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-700" title="Add block reminder to Google Calendar">
-                📅 Remind
-              </a>
-              <button onclick="launchTaskPomodoro('${t.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold ${isActive && timerRunning ? 'bg-emerald-600 text-white' : 'bg-indigo-600 text-white'} hover:opacity-90">
-                ${isActive && timerRunning ? '⏳ Active' : '▶ 25m'}
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
+    // GOOGLE CALENDAR REMINDER LINK
+    function openGoogleCalendarReminder(taskId) {
+      const task = state.dailyTasks.find(t => t.id === taskId);
+      if (!task) return;
+      const proj = getProjectById(task.projectId);
+      const title = encodeURIComponent(`🍅 [${proj.name}] ${task.title}`);
+      const details = encodeURIComponent(`Scheduled in FocusFlow Studio (${task.time})${proj.link ? '\nLink: ' + proj.link : ''}`);
+      const dateCompact = task.date.replace(/-/g, '');
+      const datesParam = `${dateCompact}T090000/${dateCompact}T095000`;
+      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${datesParam}`;
+      window.open(url, '_blank');
     }
 
-    function renderDaily() {
-      const container = document.getElementById('daily-container');
-      const items = getAllTasks().filter(t => t.tab === 'daily' && (currentWeekFilter === 'all' || t.week === currentWeekFilter));
-      
-      const groups = {};
-      items.forEach(item => {
-        if (!groups[item.day]) groups[item.day] = [];
-        groups[item.day].push(item);
-      });
-
-      container.innerHTML = Object.entries(groups).map(([day, tasks]) => {
-        const allDone = tasks.every(t => state.tasks[t.id]);
-        return `
-          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3.5 space-y-2.5 ${allDone ? 'opacity-60' : ''}">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-              <span class="text-xs font-bold text-white">${day}</span>
-              <span class="text-xs font-mono text-slate-400">${tasks.filter(t => state.tasks[t.id]).length}/${tasks.length} done</span>
-            </div>
-            <div class="space-y-2">
-              ${tasks.map(t => `
-                <label class="flex items-start gap-2.5 cursor-pointer group text-xs text-slate-200">
-                  <input type="checkbox" ${state.tasks[t.id] ? 'checked' : ''} onchange="toggleTask('${t.id}')" class="mt-0.5 accent-indigo-500 rounded" />
-                  <div class="flex-1 ${state.tasks[t.id] ? 'task-done' : ''}">
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-900 border border-slate-700 text-indigo-300 mr-1">${t.slot || t.est}</span>
-                    <span>${t.title}</span>
-                  </div>
-                </label>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      }).join('');
+    // MODAL & JSON BACKUP
+    function openSettingsModal() {
+      document.getElementById('settings-modal').classList.remove('hidden');
     }
 
-    function renderListTab(tabName, containerId) {
-      const container = document.getElementById(containerId);
-      const items = getAllTasks().filter(t => t.tab === tabName);
-      const groups = {};
-      items.forEach(item => {
-        if (!groups[item.category]) groups[item.category] = [];
-        groups[item.category].push(item);
-      });
-
-      container.innerHTML = Object.entries(groups).map(([cat, tasks]) => `
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2.5">
-          <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">${cat}</h3>
-            <span class="text-xs font-mono text-slate-400">${tasks.filter(t => state.tasks[t.id]).length}/${tasks.length}</span>
-          </div>
-          <div class="space-y-2">
-            ${tasks.map(t => `
-              <label class="flex items-start gap-2.5 cursor-pointer text-xs py-0.5 text-slate-200">
-                <input type="checkbox" ${state.tasks[t.id] ? 'checked' : ''} onchange="toggleTask('${t.id}')" class="mt-0.5 accent-indigo-500" />
-                <span class="flex-1 ${state.tasks[t.id] ? 'task-done' : ''}">${t.title}</span>
-                <span class="text-xs font-mono text-slate-400 shrink-0">${t.est}</span>
-              </label>
-            `).join('')}
-          </div>
-        </div>
-      `).join('');
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
     }
 
-    function renderProgress() {
-      const all = getAllTasks();
-      const total = all.length;
-      const done = all.filter(t => state.tasks[t.id]).length;
-      const pct = total ? Math.round((done / total) * 100) : 0;
-      document.getElementById('overall-progress-text').textContent = `${done} / ${total} (${pct}%)`;
-      document.getElementById('overall-progress-bar').style.width = `${pct}%`;
-
-      const hrs = ((state.totalPomos || 0) * 25 / 60).toFixed(1);
-      document.getElementById('pomo-count-display').textContent = `🍅 ${state.totalPomos || 0} (${hrs} hrs)`;
+    function loadSampleTemplate() {
+      if (!confirm('Replace current workspace with the default sample template?')) return;
+      state = getDefaultSampleWorkspace();
+      selectedDate = getTodayISO();
+      saveState();
+      closeSettingsModal();
     }
 
-    function renderAll() {
-      renderTimeblocks();
-      renderDaily();
-      renderListTab('postdoc', 'postdoc-container');
-      renderListTab('topo', 'topo-container');
-      renderListTab('jgra', 'jgra-container');
-      renderListTab('wrf', 'wrf-container');
-      renderProgress();
+    function clearAllData() {
+      if (!confirm('Clear all tasks and projects to start with an empty workspace?')) return;
+      state = { pomoTodayCount: 0, projects: [], dailyTasks: [] };
+      saveState();
+      closeSettingsModal();
     }
 
-    loadState();
+    function exportWorkspaceJSON() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `focusflow-backup-${getTodayISO()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importWorkspaceJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && Array.isArray(imported.projects) && Array.isArray(imported.dailyTasks)) {
+            state = imported;
+            if (state.dailyTasks.length > 0) {
+              selectedDate = state.dailyTasks[0].date;
+            }
+            saveState();
+            closeSettingsModal();
+            alert('Workspace imported successfully!');
+          } else {
+            alert('Invalid workspace JSON format.');
+          }
+        } catch (err) {
+          alert('Could not read JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
     renderAll();
-    updateTimerUI();
   </script>
 </body>
 </html>

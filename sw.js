@@ -1,4 +1,4 @@
-const CACHE_NAME = 'phd-tracker-v1';
+const CACHE_NAME = 'focusflow-pwa-v1';
 const ASSETS = [
   './',
   './index.html',

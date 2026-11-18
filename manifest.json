@@ -1,11 +1,11 @@
 {
-  "name": "PhD Pomodoro & Command Center",
-  "short_name": "PhD Tracker",
-  "description": "Sreedevi's Time-Blocked Pomodoro Studio & PhD Dissertation Tracker",
+  "name": "FocusFlow — Time-Blocked Pomodoro & Deep Work Studio",
+  "short_name": "FocusFlow",
+  "description": "Time-blocked Pomodoro planner, project tracker, and deep work studio.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#6366f1",
+  "theme_color": "#4f46e5",
   "orientation": "portrait-primary",
   "icons": [
     {
