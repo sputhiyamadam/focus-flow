@@ -1,6 +1,29 @@
 # 🍅 FocusFlow — Time-Blocked Pomodoro & Deep Work Studio (PWA)
 
+🌐 **Live Web & Mobile App:** **[https://sputhiyamadam.github.io/focus-flow/](https://sputhiyamadam.github.io/focus-flow/)**
+
 An open-source, installable **Progressive Web App (PWA)** designed for researchers, graduate students, and deep-work creators to combine **hour-by-hour daily time-blocking**, **project checklists**, and a **live Pomodoro countdown studio**—with 100% client-side privacy.
+
+---
+
+## 📱 How to Install It as an App on Your Phone
+
+1. Open **[https://sputhiyamadam.github.io/focus-flow/](https://sputhiyamadam.github.io/focus-flow/)** on your phone.
+2. **On iPhone (Safari):** Tap the **Share** button (square with an arrow pointing up at the bottom) → scroll down and tap **"Add to Home Screen"** → tap **Add**.
+3. **On Android (Chrome):** Tap the **⋮ menu** (top right) → tap **"Install app"** (or **"Add to Home screen"**).
+4. You will now have the **FocusFlow** icon right on your phone's home screen, opening full-screen like a native app!
+
+---
+
+## ⚙️ Data, Privacy & Workspace Templates (`Export / Import JSON`)
+
+All of your projects, checklists, and daily time blocks are stored **100% privately in your own device's local browser storage** (`localStorage`)—nothing is ever uploaded to an external server.
+
+Click the **`⚙️ Data & Templates`** button in the top-right corner of the app to:
+- **✨ Load Sample Deep-Work Template:** Populate the app with a starter schedule and sample projects to explore how it works.
+- **🗑️ Reset to Blank Slate:** Clear all sample data and start fresh with your own projects and schedule.
+- **⬇️ Export Workspace (`.json`):** Download your entire schedule, projects, and checklists as a `.json` backup file.
+- **⬆️ Import Workspace (`.json`):** Load a saved `.json` file to restore a backup or quickly transfer your workspace between your laptop and phone (e.g., via AirDrop, Google Drive, or email).
 
 ---
 
@@ -10,8 +33,7 @@ An open-source, installable **Progressive Web App (PWA)** designed for researche
 - **⏰ Hour-by-Hour Daily Time-Blocker:** Plan any date by slotting tasks into time blocks, assigning project tags, and tracking completed `🍅` Pomodoros per task.
 - **📅 One-Tap Google Calendar Reminders:** Tap `📅 Remind` on any time block to open a pre-filled Google Calendar event so your phone's native calendar alarm rings on time.
 - **📂 Custom Projects & Checklists:** Create color-coded projects with external document links (Google Docs, Overleaf, GitHub, Notion) and milestone checklists.
-- **📱 Installable Mobile & Desktop PWA:** Works offline and installs directly to your iOS (`Share → Add to Home Screen`) or Android (`Install App`) home screen.
-- **🔒 100% Private Local Storage + JSON Backup:** All tasks and links stay in your own browser's `localStorage`. Export or import a `.json` backup anytime to move your schedule between laptop and phone.
+- **📱 Installable Mobile & Desktop PWA:** Works offline and installs directly to your phone or desktop home screen.
 
 ---
 
@@ -21,10 +43,6 @@ An open-source, installable **Progressive Web App (PWA)** designed for researche
 - **⚡ Workflow Habit Stack & Deep Flow State:** Guided pre-focus launch rituals, progressive deep-flow timers (`25m → 50m → 90m`), and evening shutdown rituals.
 
 ---
-
-## 🚀 Usage
-
-Open `index.html` in any browser, or host directly on **GitHub Pages** (`Settings → Pages → Deploy from branch: main`).
 
 ## 📄 License
 
